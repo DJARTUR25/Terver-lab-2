@@ -1,73 +1,76 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
 
-# ================== Часть 1-4: Упорядоченные значения X ==================
-# 1. Генерация исходных данных
-a = float(input("Введите коэффициент a: "))
-b = float(input("Введите коэффициент b: "))
-sigma = float(input("Введите стандартное отклонение sigma: "))
-n = int(input("Введите размер выборки n: "))
-m = int(input("Введите размер доп. выборки m: "))
+def get_best_coefs(x, y):
+    n = x.size
+    s_x = np.sum(x)
+    s_y = np.sum(y)
+    s_xy = np.sum(x * y)
+    s_x2 = np.sum(x**2)
+    
+    a = (n*s_xy - s_x*s_y) / (n*s_x2 - s_x**2)
+    b = (s_xy*s_x - s_y * s_x2) / (s_x*s_x - n*s_x2)
+    return a, b
 
-# Генерируем X = [1, 2, ..., n] и y с шумом
-X = np.arange(1, n+1).reshape(-1, 1)
+def get_r2(y, y_best):
+    y_mean = np.mean(y)
+    ss_res = np.sum((y - y_best)**2)
+    ss_tot = np.sum((y - y_mean)**2)
+    return 1 - (ss_res / ss_tot)
+
+a = 2
+b = 2
+sigma = 1
+n = 100
+m = 20
+
+X = np.arange(1, n+1)
 y_true = a * X + b
-y = y_true + np.random.normal(0, sigma, size=(n, 1))
+y = y_true + np.random.normal(0, sigma, n)
 
-# 2. Обучение модели линейной регрессии
-model = LinearRegression()
-model.fit(X, y)
-a_star = model.coef_[0][0]
-b_star = model.intercept_[0]
+a_star, b_star = get_best_coefs(X, y)
+y_best = a_star * X + b_star
 
 print(f"\nОцененные коэффициенты:\na* = {a_star:.3f}\nb* = {b_star:.3f}")
 
-# 3. Расчет коэффициента детерминации R²
-r2 = model.score(X, y)
-print(f"R²: {r2:.3f}")
+r2 = get_r2(y, y_best)
+print(f"R²: {r2:.8f}")
 
-# 4. Генерация дополнительной выборки и сравнение
-X_new = np.arange(n+1, n+m+1).reshape(-1, 1)
+X_new = np.arange(n+1, n+m+1)
 y_new_true = a * X_new + b
-y_new = y_new_true + np.random.normal(0, sigma, size=(m, 1))
-y_pred = model.predict(X_new)
+y_new = y_new_true + np.random.normal(0, sigma, m)
+y_pred = a_star * X_new + b_star 
 
-# Визуализация
 plt.figure(figsize=(10, 6))
 plt.scatter(X, y, label='Исходные данные')
-plt.plot(X, model.predict(X), color='red', label='Модель')
+plt.plot(X, y_best, color='red', label='Модель')
 plt.scatter(X_new, y_new, color='green', marker='x', label='Доп. выборка')
 plt.plot(X_new, y_pred, '--', color='orange', label='Прогноз')
 plt.legend()
 plt.title("Линейная регрессия с упорядоченными X")
 plt.show()
 
-# ================== Часть 5: Случайные значения X ==================
-t1 = float(input("\nВведите начало отрезка t1: "))
-t2 = float(input("Введите конец отрезка t2: "))
 
-# Генерация случайных X
-X_random = np.random.uniform(t1, t2, size=(n, 1))
+t1 = 5
+t2 = 15
+
+X_random = np.random.uniform(t1, t2, n)
 y_random_true = a * X_random + b
-y_random = y_random_true + np.random.normal(0, sigma, size=(n, 1))
+y_random = y_random_true + np.random.normal(0, sigma, n)
 
-# Обучение новой модели
-model_random = LinearRegression()
-model_random.fit(X_random, y_random)
-a_star_random = model_random.coef_[0][0]
-b_star_random = model_random.intercept_[0]
+a_star_random, b_star_random = get_best_coefs(X_random, y_random)
+y_best_random = a_star_random * X_random + b_star_random
 
 print(f"\nОцененные коэффициенты (случайные X):\na* = {a_star_random:.3f}\nb* = {b_star_random:.3f}")
-print(f"R² (случайные X): {model_random.score(X_random, y_random):.3f}")
+print(f"R² (случайные X): {get_r2(y_random, y_best_random):.8f}")
 
-# Визуализация для случайных X
+sorted_indices = np.argsort(X_random)
+X_sorted = X_random[sorted_indices]
+y_pred_sorted = y_best_random[sorted_indices]
+
 plt.figure(figsize=(10, 6))
 plt.scatter(X_random, y_random, label='Случайные данные')
-plt.plot(np.sort(X_random, axis=0), 
-         model_random.predict(np.sort(X_random, axis=0)), 
-         color='red', label='Модель')
+plt.plot(X_sorted, y_pred_sorted, color='red', label='Модель')
 plt.title("Линейная регрессия со случайными X")
 plt.legend()
 plt.show()
