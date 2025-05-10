@@ -20,6 +20,7 @@ def get_r2(y, y_best):
 
 a = 2
 b = 2
+
 sigma = 1
 n = 100
 m = 20
