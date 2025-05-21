@@ -18,12 +18,12 @@ def get_r2(y, y_best):
     ss_tot = np.sum((y - y_mean)**2)
     return 1 - (ss_res / ss_tot)
 
-a = 2
-b = 2
+a = 1
+b = 20
 
-sigma = 1
-n = 100
-m = 20
+sigma = 20
+n = 1000
+m = 40
 
 X = np.arange(1, n+1)
 y_true = a * X + b
@@ -42,18 +42,19 @@ y_new_true = a * X_new + b
 y_new = y_new_true + np.random.normal(0, sigma, m)
 y_pred = a_star * X_new + b_star 
 
-plt.figure(figsize=(10, 6))
-plt.scatter(X, y, label='Исходные данные')
-plt.plot(X, y_best, color='red', label='Модель')
-plt.scatter(X_new, y_new, color='green', marker='x', label='Доп. выборка')
-plt.plot(X_new, y_pred, '--', color='orange', label='Прогноз')
-plt.legend()
-plt.title("Линейная регрессия с упорядоченными X")
-plt.show()
+# plt.figure(figsize=(10, 6))
+# plt.scatter(X, y, label='Исходные данные')
+# plt.plot(X, y_best, color='red', label='Модель')
+# plt.scatter(X_new, y_new, color='green', marker='x', label='Доп. выборка')
+# plt.plot(X_new, y_pred, '--', color='orange', label='Прогноз')
+# plt.legend()
+# plt.title("Линейная регрессия с упорядоченными X")
+# plt.show()
 
 
-t1 = 5
-t2 = 15
+
+t1 = 0
+t2 = 10
 
 X_random = np.random.uniform(t1, t2, n)
 y_random_true = a * X_random + b
